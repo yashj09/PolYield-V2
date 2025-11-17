@@ -1,8 +1,14 @@
-# 🌐 Cross-Chain Yield Aggregator - Polyield
+# 🌐 Polyield - Cross-Chain Yield Aggregator 
 
 **The First Native Cross-Chain Yield Optimizer for Polkadot Ecosystem**
 
 Slides Link - https://www.canva.com/design/DAGYOsKb3wI/v7n-oo_vG6__2H0r3SQIig/edit?utm_content=DAGYOsKb3wI
+
+Youtube video - https://youtu.be/KzbdeP5sw8c
+
+https://github.com/user-attachments/assets/ae66b5c5-5ec9-4260-8791-dbe364b9deb1
+
+
 
 ## 📖 Table of Contents
 
@@ -142,13 +148,6 @@ Where:
 - **Tailwind CSS**: Utility-first styling
 - **Liquid Glass Design**: Modern glassmorphism UI
 
-**Development Tools:**
-
-- **Polkadot Remix IDE**: Contract development
-- **Chopsticks**: Local testing environment
-- **Polkadot.js**: Blockchain interaction
-- **PAPI**: Next-gen API library
-
 ---
 
 ## ⚡ Key Features
@@ -206,7 +205,6 @@ Where:
 - **Auto-Rebalancing**: Maintains optimal risk/reward ratio
 - **Compound Harvesting**: Automatic reinvestment of rewards
 - **Tax Optimization**: Cost-basis tracking for reporting
-- **Mobile Experience**: Full-featured responsive design
 
 ---
 
@@ -231,157 +229,8 @@ Where:
 | **Growth**       | $50M  | $1.2M          | 5,000 users  |
 | **Success**      | $200M | $4.8M          | 20,000 users |
 
-### 🎯 Go-to-Market Strategy
-
-**Phase 1: MVP Launch (Months 1-3)**
-
-- Deploy on Polkadot Hub TestNet
-- 3-5 vault strategies
-- Community building and feedback
-
-**Phase 2: Mainnet Beta (Months 4-6)**
-
-- Production deployment
-- Security audits and bug bounties
-- Partnership with 3+ parachains
-
-**Phase 3: Scale (Months 7-12)**
-
-- 10+ supported parachains
-- Advanced strategies (leverage, options)
-- Institutional features
-
-### 🤝 Competitive Advantages
-
-1. **First-Mover Advantage**: Only native XCM yield aggregator
-2. **Technical Moat**: Deep Polkadot/XCM expertise required to replicate
-3. **Network Effects**: More parachains = better optimization = more users
-4. **Cost Leadership**: Lower fees due to XCM efficiency vs bridges
-
 ---
 
-## 🛠️ Technical Implementation
-
-### 📋 Smart Contract Architecture
-
-#### Core Contracts
-
-**1. CrossChainYieldAggregator.sol**
-
-```solidity
-// Main aggregator contract with vault management
-contract CrossChainYieldAggregator {
-    mapping(uint256 => YieldVault) public vaults;
-    mapping(address => mapping(uint256 => UserPosition)) public userPositions;
-
-    function deposit(uint256 vaultId, uint256 amount) external;
-    function withdraw(uint256 vaultId, uint256 shares) external;
-    function harvest(uint256 vaultId) external;
-    function optimizeYield(address token, uint256 amount) external;
-}
-```
-
-**2. XCMManager.sol**
-
-```solidity
-// Handles all cross-chain messaging
-contract XCMManager {
-    IXcm constant XCM = IXcm(address(0xA0000));
-
-    function executeCrossChainDeposit(uint256 chainId, bytes calldata message) external;
-    function handleXCMResponse(bytes32 messageId, bytes calldata response) external;
-}
-```
-
-**3. YieldStrategy.sol**
-
-```solidity
-// Individual yield strategy implementations
-contract YieldStrategy {
-    function calculateOptimalAllocation(uint256 amount) external view returns (uint256);
-    function execute(uint256 amount) external returns (uint256);
-    function getRiskScore() external view returns (uint256);
-}
-```
-
-#### Key Data Structures
-
-```solidity
-struct YieldVault {
-    uint256 vaultId;
-    address token;
-    uint256 parachainId;
-    address targetProtocol;
-    uint256 currentAPY;
-    uint256 totalDeposits;
-    uint256 riskScore;
-    bool isActive;
-    string strategyType;
-}
-
-struct UserPosition {
-    uint256 shares;
-    uint256 depositedAmount;
-    uint256 lastClaimTime;
-    uint256 pendingRewards;
-}
-```
-
-### 🔗 XCM Integration Details
-
-**XCM Message Construction:**
-
-```solidity
-function buildDepositXCMMessage(
-    address protocol,
-    uint256 amount,
-    address beneficiary
-) internal pure returns (bytes memory) {
-    // 1. WithdrawAsset: Remove from sovereign account
-    // 2. BuyExecution: Pay for execution on target chain
-    // 3. Transact: Call deposit function on target protocol
-    // 4. RefundSurplus: Return unused execution fees
-    // 5. DepositAsset: Send remaining assets to beneficiary
-}
-```
-
-**Parachain Destination Encoding:**
-
-```solidity
-function encodeParachainDestination(uint256 parachainId) internal pure returns (bytes memory) {
-    return abi.encodePacked(
-        hex"01",        // parents = 1 (go up to relay chain)
-        hex"00",        // interior = X1
-        hex"00",        // Parachain variant
-        parachainId
-    );
-}
-```
-
-### 🔐 Security Measures
-
-**Access Controls:**
-
-- Multi-signature wallet for admin functions
-- Time-locked governance changes
-- Emergency pause mechanisms
-- Role-based permissions
-
-**Risk Mitigation:**
-
-- Maximum exposure limits per strategy
-- Circuit breakers for unusual market conditions
-- Automated risk score updates
-- Slippage protection on large deposits
-
-**Audit Readiness:**
-
-- Comprehensive test coverage (>95%)
-- Formal verification for critical functions
-- Bug bounty program structure
-- Security review checklist
-
----
 
 ## 🎮 Demo Instructions
 
@@ -390,8 +239,8 @@ function encodeParachainDestination(uint256 parachainId) internal pure returns (
 1. **Clone and Setup:**
 
 ```bash
-git clone <repository-url>
-cd cross-chain-yield-aggregator
+git clone https://github.com/yashj09/PolYield-V2
+cd PolYield-V2
 npm install
 npm run dev
 ```
@@ -461,30 +310,6 @@ function testXCMConnectivity() external view returns (bool) {
 }
 ```
 
-**Vault Management Tests:**
-
-```solidity
-function testVaultCreation() external {
-    createVault(DOT_TOKEN, 2000, ACALA_PROTOCOL, 1580, 4, "Liquid Staking");
-    assert(vaults[0].isActive == true);
-    assert(vaults[0].currentAPY == 1580);
-}
-```
-
-**Cross-Chain Deposit Tests:**
-
-```solidity
-function testCrossChainDeposit() external {
-    uint256 amount = 1000 * 1e18;
-    deposit(0, amount); // Deposit to vault 0
-
-    // Verify user shares
-    assert(userPositions[0][msg.sender].shares == amount);
-
-    // Verify XCM message sent
-    assert(pendingXCMOps.length > 0);
-}
-```
 
 ### 📋 Contract Verification
 
@@ -545,105 +370,4 @@ function testCrossChainDeposit() external {
 4. **Bifrost**: Multi-asset liquid staking coordination
 5. **Interlay**: Bitcoin yield product integration
 
-### 📊 Competitive Landscape Analysis
 
-**vs. Traditional Yield Aggregators:**
-
-| Feature         | Cross-Chain Aggregator | Yearn Finance   | Beefy Finance     |
-| --------------- | ---------------------- | --------------- | ----------------- |
-| **Cross-Chain** | ✅ Native XCM          | ❌ Bridges only | ❌ Multi-deploy   |
-| **Fees**        | 2% performance         | 20% performance | 9.5% performance  |
-| **Speed**       | <6 sec finality        | 12+ sec         | Varies by chain   |
-| **Security**    | Shared security        | Single chain    | Multi-chain risk  |
-| **Innovation**  | First XCM native       | Established     | Multi-chain focus |
-
-**Market Positioning:**
-
-- **Unique Value**: Only native cross-chain aggregator in crypto
-- **Technical Moat**: Deep XCM integration expertise required
-- **Network Effects**: More parachains = better optimization
-- **First-Mover**: Establish standard for Polkadot DeFi
-
----
-
-## 🚀 Roadmap
-
-### 📅 Development Timeline
-
-#### **Q1 2025: Foundation** ✅
-
-- [x] MVP smart contract development
-- [x] XCM integration proof-of-concept
-- [x] UI/UX design and implementation
-- [x] Hackathon demo and presentation
-- [x] Community feedback collection
-
-#### **Q2 2025: TestNet Launch** 🚧
-
-- [ ] Security audit completion (2 firms)
-- [ ] Bug bounty program launch
-- [ ] TestNet deployment and testing
-- [ ] Integration with 3 initial parachains
-- [ ] Beta user program (100 users)
-
-#### **Q3 2025: MainNet Beta** 🔮
-
-- [ ] MainNet deployment on Polkadot Hub
-- [ ] 6 parachain integrations live
-- [ ] Advanced strategy implementations
-- [ ] Mobile app development
-- [ ] Institutional features beta
-
-#### **Q4 2025: Scale & Expand** 🔮
-
-- [ ] 12+ parachain ecosystem coverage
-- [ ] Advanced features (leverage, options)
-- [ ] Governance token launch
-- [ ] Cross-ecosystem bridges (Kusama)
-- [ ] API for third-party developers
-
-### 🎯 Feature Development Priorities
-
-**Phase 1: Core Features**
-
-- Multi-vault yield optimization
-- XCM cross-chain execution
-- Risk-adjusted portfolio management
-- Real-time analytics dashboard
-
-**Phase 2: Advanced Strategies**
-
-- Leveraged yield farming
-- Options-based strategies
-- Cross-chain arbitrage
-- MEV-resistant execution
-
-**Phase 3: Ecosystem Integration**
-
-- Governance integration (OpenGov)
-- NFT-backed lending strategies
-- Real-world asset (RWA) yields
-- Institutional custody integration
-
-**Phase 4: Innovation**
-
-- AI-powered yield prediction
-- Zero-knowledge privacy features
-- Cross-ecosystem expansion
-- Autonomous strategy creation
-
-### 💼 Business Development Goals
-
-**Partnership Pipeline:**
-
-- **Tier 1**: Acala, Moonbeam, HydraDX (Q2 2025)
-- **Tier 2**: Interlay, Astar, Bifrost (Q3 2025)
-- **Tier 3**: Composable, Centrifuge, Parallel (Q4 2025)
-- **Infrastructure**: Subscan, SubQuery, OnFinality
-
-**Funding Strategy:**
-
-- **Bootstrap**: Hackathon prizes and grants ($50K)
-- **Seed Round**: Parachain funds and angels ($500K)
-- **Series A**: Strategic VCs and institutions ($5M)
-- **Token Launch**: Community and ecosystem ($25M)
