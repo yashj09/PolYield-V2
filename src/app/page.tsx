@@ -20,7 +20,7 @@ export default function HomePage() {
       actions.selectVault(vault);
       setShowDepositModal(true);
     } else {
-      actions.showNotification("Please connect your wallet first", "warning");
+      // actions.showNotification("Please connect your wallet first", "warning");
     }
   };
 
@@ -61,6 +61,7 @@ export default function HomePage() {
             <YieldOptimizer
               isConnected={state.wallet.isConnected}
               loading={state.loading.optimize}
+              vaults={state.vaults}
               onOptimize={actions.optimizeYield}
             />
 

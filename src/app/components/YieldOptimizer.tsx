@@ -1,27 +1,65 @@
 // components/YieldOptimizer.tsx
 import React, { useState } from "react";
+import OptimizeModal from "./OptimizeModal";
+import { Vault } from "@/types";
 
 interface YieldOptimizerProps {
   isConnected: boolean;
   loading: boolean;
+  vaults: Vault[];
   onOptimize: (amount: number) => void;
 }
 
 const YieldOptimizer: React.FC<YieldOptimizerProps> = ({
   isConnected,
   loading,
+  vaults,
   onOptimize,
 }) => {
-  const [selectedAmount, setSelectedAmount] = useState(1000);
-  const [customAmount, setCustomAmount] = useState("");
+  const [selectedAmount, setSelectedAmount] = useState<number>(1000);
+  const [customAmount, setCustomAmount] = useState<string>("1000");
+  const [showOptimizeModal, setShowOptimizeModal] = useState<boolean>(false);
 
   const quickAmounts = [100, 500, 1000, 5000];
+  const bestVault = vaults.find((v) => v.isBest) || null;
 
-  const handleOptimize = () => {
-    const amount = customAmount ? parseFloat(customAmount) : selectedAmount;
-    if (amount > 0) {
-      onOptimize(amount);
+  const handleOptimizeClick = () => {
+    const amount = parseFloat(customAmount);
+    if (amount > 0 && bestVault) {
+      setShowOptimizeModal(true);
     }
+  };
+
+  const handleConfirmOptimize = () => {
+    const amount = parseFloat(customAmount);
+    console.log("🚀 Confirm optimize clicked, amount:", amount);
+    if (amount > 0) {
+      setShowOptimizeModal(false);
+      console.log("✅ Modal closed, calling onOptimize with amount:", amount);
+      onOptimize(amount);
+    } else {
+      console.log("❌ Invalid amount:", amount);
+    }
+  };
+
+  const handlePresetClick = (amount: number) => {
+    setSelectedAmount(amount);
+    setCustomAmount(amount.toString());
+  };
+
+  const handleCustomInputChange = (value: string) => {
+    setCustomAmount(value);
+    // Clear selected preset when user manually types
+    const numValue = parseFloat(value);
+    if (numValue && !quickAmounts.includes(numValue)) {
+      setSelectedAmount(0);
+    } else if (numValue && quickAmounts.includes(numValue)) {
+      setSelectedAmount(numValue);
+    }
+  };
+
+  const isAmountSelected = (amount: number) => {
+    return selectedAmount === amount && customAmount === amount.toString();
   };
 
   return (
@@ -56,13 +94,10 @@ const YieldOptimizer: React.FC<YieldOptimizerProps> = ({
           {quickAmounts.map((amount) => (
             <button
               key={amount}
-              onClick={() => {
-                setSelectedAmount(amount);
-                setCustomAmount("");
-              }}
-              className={`px-6 py-3 rounded-xl border font-semibold transition-all duration-300 ${
-                selectedAmount === amount && !customAmount
-                  ? "btn-polkadot"
+              onClick={() => handlePresetClick(amount)}
+              className={`relative px-6 py-3 rounded-xl border font-semibold transition-all duration-300 transform hover:scale-105 ${
+                isAmountSelected(amount)
+                  ? "bg-gradient-to-r from-[#e6007a] to-[#ff1a9b] text-white border-white/30 shadow-lg shadow-[#e6007a]/40 scale-105"
                   : "border-gray-300 bg-white/50 text-gray-700 hover:bg-white/70 hover:border-gray-400"
               }`}
             >
@@ -72,21 +107,21 @@ const YieldOptimizer: React.FC<YieldOptimizerProps> = ({
         </div>
 
         {/* Custom Amount Input */}
-        <div className="max-w-xs mx-auto font-black">
+        <div className="max-w-xs mx-auto">
           <input
             type="number"
-            placeholder="Custom amount..."
+            placeholder="Enter amount..."
             value={customAmount}
-            onChange={(e) => setCustomAmount(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/50 backdrop-blur-lg text-center text-black focus:outline-none focus:border-[#e6007a] focus:bg-white/70 transition-all duration-300"
+            onChange={(e) => handleCustomInputChange(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-white/50 backdrop-blur-lg text-center text-gray-700 font-semibold focus:outline-none focus:border-[#e6007a] focus:bg-white/70 transition-all duration-300"
           />
         </div>
       </div>
 
       {/* Optimize Button */}
       <button
-        onClick={handleOptimize}
-        disabled={!isConnected || loading}
+        onClick={handleOptimizeClick}
+        disabled={!isConnected || loading || !bestVault}
         className={`btn-polkadot text-xl px-12 py-4 disabled:opacity-50 disabled:cursor-not-allowed ${
           loading ? "pointer-events-none" : ""
         }`}
@@ -137,6 +172,16 @@ const YieldOptimizer: React.FC<YieldOptimizerProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Optimize Modal */}
+      <OptimizeModal
+        bestVault={bestVault}
+        amount={parseFloat(customAmount) || 0}
+        isOpen={showOptimizeModal}
+        loading={loading}
+        onClose={() => setShowOptimizeModal(false)}
+        onConfirm={handleConfirmOptimize}
+      />
     </div>
   );
 };

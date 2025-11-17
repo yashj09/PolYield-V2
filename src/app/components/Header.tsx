@@ -21,11 +21,11 @@ const Header: React.FC<HeaderProps> = ({
     <div className="relative">
       {/* Header Section */}
       <div className="text-center mb-12 pt-16 pb-8">
-        <h1 className="text-5xl font-bold text-white mb-4">
+        <h1 className="text-5xl font-bold text-gray-900 mb-4">
           ⚡ Cross-Chain Yield Aggregator
         </h1>
-        <p className="text-xl text-white/90 font-medium max-w-2xl mx-auto">
-          First native yield optimizer for Polkadot ecosystem using XCM
+        <p className="text-xl text-gray-700 font-medium max-w-2xl mx-auto">
+          First native yield optimizer for the Polkadot ecosystem using XCM
         </p>
       </div>
 
@@ -42,10 +42,11 @@ const Header: React.FC<HeaderProps> = ({
             <button
               key={tab.id}
               onClick={() => onSwitchTab(tab.id as AppState["currentTab"])}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
+              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 border
+              ${
                 currentTab === tab.id
-                  ? "bg-white/25 text-gray-800 backdrop-blur-lg shadow-lg"
-                  : "text-white/70 hover:text-white hover:bg-white/10"
+                  ? "bg-gray-100 text-gray-900 border-gray-300 shadow-md"
+                  : "text-gray-600 border-transparent hover:text-gray-900 hover:bg-gray-50 hover:border-gray-200"
               }`}
             >
               <span>{tab.icon}</span>
@@ -59,7 +60,7 @@ const Header: React.FC<HeaderProps> = ({
           {/* Network Indicator */}
           <div className="flex items-center gap-3 bg-white/15 backdrop-blur-lg border border-white/20 rounded-xl px-4 py-2">
             <div className="status-dot"></div>
-            <span className="text-white font-medium text-sm">
+            <span className="text-black font-medium text-sm">
               {wallet.network}
             </span>
           </div>
@@ -68,7 +69,7 @@ const Header: React.FC<HeaderProps> = ({
           <button
             onClick={onConnectWallet}
             disabled={loading.wallet}
-            className={`flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+            className={`text-black flex items-center gap-3 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
               wallet.isConnected
                 ? "btn-polkadot"
                 : "btn-glass hover:bg-white/30"
@@ -99,8 +100,8 @@ const Header: React.FC<HeaderProps> = ({
           {/* Balance Display */}
           {wallet.isConnected && (
             <div className="bg-white/15 backdrop-blur-lg border border-white/20 rounded-xl px-4 py-2">
-              <div className="text-white/70 text-xs">Balance</div>
-              <div className="text-white font-semibold">
+              <div className="text-black/70 text-xs">Balance</div>
+              <div className="text-black font-semibold">
                 {wallet.balance.toFixed(2)} DOT
               </div>
             </div>

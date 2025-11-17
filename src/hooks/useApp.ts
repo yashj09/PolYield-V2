@@ -157,13 +157,44 @@ export const useApp = () => {
 
   const depositToVault = useCallback(
     async (vaultId: string, amount: number) => {
-      if (!state.wallet.isConnected) {
-        showNotification("Please connect your wallet first", "warning");
+      console.log(
+        "💼 depositToVault called - vaultId:",
+        vaultId,
+        "amount:",
+        amount
+      );
+
+      // Get vault directly from current state
+      const vault = state.vaults.find((v) => v.id === vaultId);
+      const isConnected = state.wallet.isConnected;
+
+      console.log("💼 Looking for vault with ID:", vaultId);
+      console.log(
+        "💼 All vault IDs:",
+        state.vaults.map((v) => `${v.id} (${v.chainName})`).join(", ")
+      );
+      console.log(
+        "💼 Found vault:",
+        vault?.chainName,
+        "Connected:",
+        isConnected
+      );
+
+      // if (!isConnected) {
+      //   showNotification("Please connect your wallet first", "warning");
+      //   return;
+      // }
+
+      if (!vault) {
+        console.log("❌ Vault not found for ID:", vaultId);
+        showNotification("Vault not found", "error");
         return;
       }
 
-      const vault = state.vaults.find((v) => v.id === vaultId);
-      if (!vault) return;
+      console.log(
+        "✅ Vault found, proceeding with deposit to:",
+        vault.chainName
+      );
 
       setState((prev) => ({
         ...prev,
@@ -211,14 +242,22 @@ export const useApp = () => {
           ),
         }));
 
-        // Add to portfolio
+        // Add to portfolio and update wallet balance
         setState((prev) => {
+          const vaultApy = prev.vaults.find((v) => v.id === vaultId)?.apy || 0;
           const updatedPortfolio = addPositionToPortfolio(
             prev.portfolio,
             vaultId,
             amount,
-            vault.apy
+            vaultApy
           );
+
+          console.log(
+            "📊 Portfolio updated - positions:",
+            updatedPortfolio.positions.length
+          );
+          console.log("💰 Total deposited:", updatedPortfolio.totalDeposited);
+          console.log("💎 Total value:", updatedPortfolio.totalValue);
 
           // Update vault TVL
           const updatedVaults = prev.vaults.map((v) =>
@@ -230,18 +269,32 @@ export const useApp = () => {
             updatedPortfolio
           );
 
+          // Deduct amount from wallet balance
+          const updatedWallet = {
+            ...prev.wallet,
+            balance: Math.max(0, prev.wallet.balance - amount),
+          };
+
+          console.log(
+            "💵 Wallet balance updated:",
+            prev.wallet.balance,
+            "->",
+            updatedWallet.balance
+          );
+
           return {
             ...prev,
             portfolio: updatedPortfolio,
             vaults: updatedVaults,
             stats: updatedStats,
+            wallet: updatedWallet,
             loading: { ...prev.loading, deposit: false },
           };
         });
 
         showNotification(
           `Successfully deposited $${amount.toLocaleString()} to ${
-            vault.chainName
+            vault!.chainName
           }!`,
           "success"
         );
@@ -257,15 +310,29 @@ export const useApp = () => {
         showNotification("Deposit failed. Please try again.", "error");
       }
     },
-    [state.wallet.isConnected, state.vaults, showNotification]
+    [state.vaults, state.wallet.isConnected, showNotification]
   );
 
   const optimizeYield = useCallback(
     async (amount: number) => {
-      if (!state.wallet.isConnected) {
-        showNotification("Please connect your wallet first", "warning");
-        return;
-      }
+      console.log("🎯 optimizeYield called with amount:", amount);
+
+      // Get best vault directly from state
+      const isConnected = state.wallet.isConnected;
+      const bestVault = state.vaults.find((v) => v.isBest);
+
+      console.log(
+        "📊 Wallet connected:",
+        isConnected,
+        "Best vault:",
+        bestVault?.chainName
+      );
+      console.log("📊 Best vault ID:", bestVault?.id);
+
+      // if (!isConnected) {
+      //   showNotification("Please connect your wallet first", "warning");
+      //   return;
+      // }
 
       setState((prev) => ({
         ...prev,
@@ -275,10 +342,17 @@ export const useApp = () => {
       showNotification("Analyzing yields across all parachains...", "info");
 
       // Simulate optimization analysis
-      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      const bestVault = state.vaults.find((v) => v.isBest);
-      if (!bestVault) return;
+      if (!bestVault) {
+        console.log("❌ No best vault found");
+        setState((prev) => ({
+          ...prev,
+          loading: { ...prev.loading, optimize: false },
+        }));
+        showNotification("No suitable vault found", "error");
+        return;
+      }
 
       showNotification(
         `Best yield found: ${bestVault.chainName} (${bestVault.apy.toFixed(
@@ -287,15 +361,22 @@ export const useApp = () => {
         "info"
       );
 
-      // Auto-deposit to best vault
-      await depositToVault(bestVault.id, amount);
+      try {
+        console.log("💰 Depositing to vault:", bestVault.id, "amount:", amount);
+        // Auto-deposit to best vault
+        await depositToVault(bestVault.id, amount);
+        console.log("✅ Deposit completed successfully");
+      } catch (error) {
+        console.error("❌ Deposit failed:", error);
+        showNotification("Optimization failed. Please try again.", "error");
+      }
 
       setState((prev) => ({
         ...prev,
         loading: { ...prev.loading, optimize: false },
       }));
     },
-    [state.wallet.isConnected, state.vaults, depositToVault, showNotification]
+    [state.vaults, state.wallet.isConnected, depositToVault, showNotification]
   );
 
   const switchTab = useCallback((tab: AppState["currentTab"]) => {
